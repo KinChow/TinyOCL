@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_CXX_STANDARD 20)
+
+find_package(OpenCL REQUIRED)
+
+set(OPENCL_HEADER_DIR ${PROJECT_SOURCE_DIR}/external/OpenCL-Headers)
+
+set(TINYOCL_HEADER_DIR ${PROJECT_SOURCE_DIR}/include)
+
+include_directories(${OPENCL_HEADER_DIR} ${TINYOCL_HEADER_DIR})
+
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} TINYOCL_SRC_DIR)
+
+add_library(${PROJECT_NAME} STATIC ${TINYOCL_SRC_DIR})
+
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/output)
