@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-12 23:18:00 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-17 03:49:48
+ * @Last Modified time: 2024-06-17 22:42:50
  */
 
 #include <iostream>
@@ -15,9 +15,9 @@ int main()
     auto buffer0 = tinyocl::TinyOCL::GetInstance().CreateBuffer(10 * sizeof(float));
     auto buffer1 = tinyocl::TinyOCL::GetInstance().CreateBuffer(10 * sizeof(float));
     auto buffer2 = tinyocl::TinyOCL::GetInstance().CreateBuffer(10 * sizeof(float));
-    float *data0 = (float *)buffer0->GetHostPtr();
-    float *data1 = (float *)buffer1->GetHostPtr();
-    float *data2 = (float *)buffer2->GetHostPtr();
+    float *data0 = buffer0->GetHostPtr<float>();
+    float *data1 = buffer1->GetHostPtr<float>();
+    float *data2 = buffer2->GetHostPtr<float>();
     if (!data0 || !data1 || !data2) {
         std::cout << "Failed to get host pointer" << std::endl;
         return -1;

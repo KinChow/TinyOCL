@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-13 01:45:39 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-17 03:50:28
+ * @Last Modified time: 2024-06-17 22:52:37
  */
 
 #include <iostream>
@@ -47,7 +47,7 @@ bool Kernel::KernelImpl::Run(
     cl_int ret = clEnqueueNDRangeKernel(
         queue_, kernel_, global_size.size(), nullptr, global_size.data(), local_size.data(), 0, nullptr, nullptr);
     CHECK_OPENCL_ERROR_RETURN_FALSE(ret, "Failed to enqueue kernel");
-    if (async) {
+    if (!async) {
         ret = clFinish(queue_);
         CHECK_OPENCL_ERROR_RETURN_FALSE(ret, "Failed to finish command queue");
     }
@@ -85,6 +85,7 @@ public:
     cl_mem GetClMem() const;
     void *GetHostPtr() const;
     size_t GetSize() const;
+    bool Memcpy(void *host_ptr, size_t size, MemcpyKind kind) const;
 
 private:
     BufferManager *manager_;
@@ -126,6 +127,21 @@ void *Buffer::BufferImpl::GetHostPtr() const { return host_ptr_; }
 
 size_t Buffer::BufferImpl::GetSize() const { return size_; }
 
+bool Buffer::BufferImpl::Memcpy(void *host_ptr, size_t size, MemcpyKind kind) const
+{
+    cl_int ret;
+    if (kind == MemcpyKind::HostToDevice) {
+        ret = clEnqueueWriteBuffer(command_queue_, buffer_, CL_TRUE, 0, size, host_ptr, 0, nullptr, nullptr);
+    } else if (kind == MemcpyKind::DeviceToHost) {
+        ret = clEnqueueReadBuffer(command_queue_, buffer_, CL_TRUE, 0, size, host_ptr, 0, nullptr, nullptr);
+    } else {
+        std::cout << "Invalid memcpy kind" << std::endl;
+        return false;
+    }
+    CHECK_OPENCL_ERROR_RETURN_FALSE(ret, "Failed to copy buffer");
+    return true;
+}
+
 Buffer::Buffer(BufferImpl *impl) { impl_.reset(impl); }
 
 cl_mem Buffer::GetClMem() const
@@ -136,7 +152,7 @@ cl_mem Buffer::GetClMem() const
     return impl_->GetClMem();
 }
 
-void *Buffer::GetHostPtr() const
+void *Buffer::GetHostPtrImpl() const
 {
     if (impl_ == nullptr) {
         return nullptr;
@@ -150,6 +166,14 @@ size_t Buffer::GetSize() const
         return 0;
     }
     return impl_->GetSize();
+}
+
+bool Buffer::Memcpy(void *host_ptr, size_t size, MemcpyKind kind) const
+{
+    if (impl_ == nullptr) {
+        return false;
+    }
+    return impl_->Memcpy(host_ptr, size, kind);
 }
 
 class TinyOCL::TinyOCLImpl final {
@@ -258,9 +282,8 @@ std::shared_ptr<Buffer> TinyOCL::TinyOCLImpl::CreateBuffer(size_t size) const
     if (!buffer_manager_) {
         return nullptr;
     }
-    std::unique_ptr<Buffer::BufferImpl> buffer_impl(new (std::nothrow) Buffer::BufferImpl(buffer_manager_.get(),
-        command_queue_.get(),
-        size));
+    std::unique_ptr<Buffer::BufferImpl> buffer_impl(
+        new (std::nothrow) Buffer::BufferImpl(buffer_manager_.get(), command_queue_.get(), size));
     if (!buffer_impl) {
         return nullptr;
     }
