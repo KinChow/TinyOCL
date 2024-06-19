@@ -27,7 +27,7 @@ int main()
         data1[i] = i + 1;
         data2[i] = 0;
     }
-    bool ret = kernel->Run({10}, {10}, true, buffer0->GetClMem(), buffer1->GetClMem(), buffer2->GetClMem());
+    bool ret = kernel->Run({10}, {10}, false, buffer0->GetClMem(), buffer1->GetClMem(), buffer2->GetClMem());
     if (!ret) {
         std::cout << "Failed to run kernel" << std::endl;
     }
