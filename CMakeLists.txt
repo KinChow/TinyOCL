@@ -20,7 +20,7 @@ string(TIMESTAMP COMPILE_TIME %y%m%d_%H%M%S)
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
-set(VERSION_TWEAK 0)
+set(VERSION_TWEAK 1)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -35,9 +35,20 @@ else()
     set(BUILD_LIBRARY OFF)
 endif()
 
-find_package(OpenCL REQUIRED)
+find_package(OpenCL QUIET)
+if (OpenCL_FOUND)
+    message(STATUS "OpenCL found.")
+    message(STATUS "OpenCL library dir: ${OpenCL_LIBRARIES}")
+    message(STATUS "OpenCL include dir: ${OpenCL_INCLUDE_DIRS}")
+else()
+    message(STATUS "OpenCL not found.")
+    message(STATUS "Use OpenCL Wrapper.")
+    add_subdirectory(${PROJECT_SOURCE_DIR}/external/opencl-wrapper)
+endif()
 
 if (BUILD_LIBRARY)
+    add_definitions(-DCL_TARGET_OPENCL_VERSION=210)
+
     set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/output)
     include_directories(
         ${OPENCL_HEADER_DIR}
@@ -45,6 +56,11 @@ if (BUILD_LIBRARY)
         ${TINYOCL_INTERFACE_HEADER_DIR}
     )
     add_library(${PROJECT_NAME} STATIC ${TINYOCL_SRC_DIR})
+    if (OpenCL_FOUND)
+        target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
+    else()
+        target_link_libraries(${PROJECT_NAME} OpenCLWrapper)
+    endif()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${TINYOCL_INTERFACE_HEADER_DIR} ${LIBRARY_OUTPUT_PATH}/include
     )
@@ -63,5 +79,10 @@ else()
         ${TINYOCL_INTERFACE_HEADER_DIR}
     )
     target_sources(${PROJECT_NAME} INTERFACE ${TINYOCL_SRC_DIR})
-    target_link_libraries(${PROJECT_NAME} INTERFACE OpenCL::OpenCL)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE -DCL_TARGET_OPENCL_VERSION=210)
+    if (OpenCL_FOUND)
+        target_link_libraries(${PROJECT_NAME} INTERFACE OpenCL::OpenCL)
+    else()
+        target_link_libraries(${PROJECT_NAME} INTERFACE OpenCLWrapper)
+    endif()
 endif()

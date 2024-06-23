@@ -4,3 +4,6 @@
 [submodule "builder"]
 	path = builder
 	url = https://github.com/KinChow/builder.git
+[submodule "external/opencl-wrapper"]
+	path = external/opencl-wrapper
+	url = https://github.com/KinChow/opencl-wrapper.git
