@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "BufferManager.h"
 
-namespace tinyocl {
+namespace TinyOCL {
 
 BufferManager::BufferManager(cl_context context, cl_command_queue queue) : context_(context), queue_(queue) {}
 
@@ -44,4 +44,4 @@ void BufferManager::Release(cl_mem buffer)
     clReleaseMemObject(buffer);
 }
 
-}  // namespace tinyocl
+}  // namespace TinyOCL

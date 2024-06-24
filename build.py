@@ -24,6 +24,7 @@ def get_args() -> argparse.ArgumentParser:
     parser.add_argument("--platform", help="Build the project", default="Windows", choices=["Windows", "Android", "Linux"])
     parser.add_argument("--clean", action="store_true", help="Clean the build directory")
     parser.add_argument("--example", action="store_true", help="Build the example")
+    parser.add_argument("--test", action="store_true", help="Build the test")
     args = parser.parse_args()
     return args
 
@@ -39,6 +40,8 @@ def get_options(args) -> List[str]:
     options = []
     if args.example:
         options += ["-DENABLE_EXAMPLE=ON"]
+    if args.test:
+        options += ["-DENABLE_TEST=ON"]
     return options
 
 if __name__ == "__main__":

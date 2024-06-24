@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-12 23:18:00 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-17 22:42:50
+ * @Last Modified time: 2024-06-24 23:25:42
  */
 
 #include <iostream>
@@ -10,14 +10,13 @@
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
-    auto kernel = tinyocl::TinyOCL::GetInstance().CreateKernel("cl/calc.cl", "add", {});
-    auto buffer0 = tinyocl::TinyOCL::GetInstance().CreateBuffer(10 * sizeof(float));
-    auto buffer1 = tinyocl::TinyOCL::GetInstance().CreateBuffer(10 * sizeof(float));
-    auto buffer2 = tinyocl::TinyOCL::GetInstance().CreateBuffer(10 * sizeof(float));
-    float *data0 = buffer0->GetHostPtr<float>();
-    float *data1 = buffer1->GetHostPtr<float>();
-    float *data2 = buffer2->GetHostPtr<float>();
+    auto kernel = TinyOCL::Executor::GetInstance().CreateKernel("cl/calc.cl", "add", {});
+    auto buffer0 = TinyOCL::Executor::GetInstance().CreateBuffer(10 * sizeof(float));
+    auto buffer1 = TinyOCL::Executor::GetInstance().CreateBuffer(10 * sizeof(float));
+    auto buffer2 = TinyOCL::Executor::GetInstance().CreateBuffer(10 * sizeof(float));
+    auto data0 = buffer0->GetHostPtr<float *>();
+    auto data1 = buffer1->GetHostPtr<float *>();
+    auto data2 = buffer2->GetHostPtr<float *>();
     if (!data0 || !data1 || !data2) {
         std::cout << "Failed to get host pointer" << std::endl;
         return -1;

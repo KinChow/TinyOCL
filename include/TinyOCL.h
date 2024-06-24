@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-13 00:00:00 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-17 23:11:25
+ * @Last Modified time: 2024-06-24 22:42:42
  */
 
 #ifndef __TINYOCL_TINYOCL_H__
@@ -15,8 +15,12 @@
 #include <vector>
 #include <CL/cl.h>
 
-namespace tinyocl {
+namespace TinyOCL {
 
+/**
+ * @brief Kernel is a class that represents the function to be executed on the device.
+ * 
+ */
 class Kernel final {
 public:
     /**
@@ -156,6 +160,10 @@ enum class MemcpyKind {
     DeviceToHost,
 };
 
+/**
+ * @brief Buffer is a class that represents the memory object on the device.
+ * 
+ */
 class Buffer final {
 public:
     /**
@@ -219,12 +227,13 @@ public:
     /**
      * @brief Get the Host Ptr
      * 
-     * @return T* 
+     * @return T The host pointer
      */
-    template <typename T>
-    T *GetHostPtr() const
+    template <typename T, typename = std::enable_if_t<std::is_pointer<T>::value>>
+    T GetHostPtr() const
     {
-        return static_cast<T *>(GetHostPtrImpl());
+        static_assert(std::is_pointer<T>::value, "T must be a pointer type");
+        return static_cast<T>(GetHostPtrImpl());
     }
 
     /**
@@ -249,7 +258,7 @@ private:
     /**
      * @brief Get the host pointer
      * 
-     * @return void* 
+     * @return void* The host pointer
      */
     void *GetHostPtrImpl() const;
 
@@ -260,33 +269,37 @@ private:
     std::unique_ptr<BufferImpl> impl_;
 };
 
-class TinyOCL final {
+/**
+ * @brief Executor is a class that represents the executor to manage Kernel and Buffer.
+ * 
+ */
+class Executor final {
 public:
     /**
      * @brief Get the Instance object
      * 
-     * @return TinyOCL& 
+     * @return Executor& 
      */
-    static TinyOCL &GetInstance();
+    static Executor &GetInstance();
 
     /**
-     * @brief Destroy the TinyOCL object
+     * @brief Destroy the Executor object
      * 
      */
-    ~TinyOCL() = default;
+    ~Executor() = default;
 
     /**
      * @brief Delete copy constructor
      * 
      */
-    TinyOCL(const TinyOCL &) = delete;
+    Executor(const Executor &) = delete;
 
     /**
      * @brief Delete copy assignment operator
      * 
-     * @return TinyOCL& 
+     * @return Executor& 
      */
-    TinyOCL &operator=(const TinyOCL &) = delete;
+    Executor &operator=(const Executor &) = delete;
 
     /**
      * @brief Create a Kernel object
@@ -310,24 +323,24 @@ public:
 
 private:
     /** 
-     * @brief Construct a new TinyOCL object
+     * @brief Construct a new Executor object
      * 
      */
-    TinyOCL();
+    Executor();
 
     /**
-     * @brief The implementation of TinyOCL
+     * @brief The implementation of Executor
      * 
      */
-    class TinyOCLImpl;
+    class ExecutorImpl;
 
     /**
-     * @brief The pointer to the implementation of TinyOCL
+     * @brief The pointer to the implementation of Executor
      *
      */
-    std::unique_ptr<TinyOCLImpl> impl_;
+    std::unique_ptr<ExecutorImpl> impl_;
 };
 
-}  // namespace tinyocl
+}  // namespace TinyOCL
 
 #endif  // __TINYOCL_TINYOCL_H__

@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-16 12:07:47 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-16 17:16:01
+ * @Last Modified time: 2024-06-24 23:25:23
  */
 
 #ifndef __TINYOCL_PROGRAMMANAGER_H__
@@ -15,10 +15,10 @@
 #include <unordered_map>
 #include <CL/cl.h>
 
-namespace tinyocl {
+namespace TinyOCL {
 
 struct ProgramWithKernels final {
-    std::unique_ptr<_cl_program, decltype(&clReleaseProgram)> program {nullptr, clReleaseProgram};
+    std::unique_ptr<_cl_program, decltype(&clReleaseProgram)> program{nullptr, clReleaseProgram};
     std::unordered_map<std::string, std::unique_ptr<_cl_kernel, decltype(&clReleaseKernel)>> kernels;
 };
 
@@ -45,6 +45,6 @@ private:
     std::mutex mutex_;
 };
 
-}  // namespace tinyocl
+}  // namespace TinyOCL
 
 #endif  //__TINYOCL_PROGRAMMANAGER_H__

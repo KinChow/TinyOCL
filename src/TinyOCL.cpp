@@ -13,7 +13,7 @@
 #include "ProgramManager.h"
 #include "TinyOCL.h"
 
-namespace tinyocl {
+namespace TinyOCL {
 class Kernel::KernelImpl final {
 public:
     explicit KernelImpl(cl_command_queue queue, cl_kernel kernel);
@@ -176,14 +176,14 @@ bool Buffer::Memcpy(void *host_ptr, size_t size, MemcpyKind kind) const
     return impl_->Memcpy(host_ptr, size, kind);
 }
 
-class TinyOCL::TinyOCLImpl final {
+class Executor::ExecutorImpl final {
 public:
-    TinyOCLImpl();
-    ~TinyOCLImpl() = default;
-    TinyOCLImpl(const TinyOCLImpl &) = delete;
-    TinyOCLImpl &operator=(const TinyOCLImpl &) = delete;
-    TinyOCLImpl(TinyOCLImpl &&) = delete;
-    TinyOCLImpl &operator=(TinyOCLImpl &&) = delete;
+    ExecutorImpl();
+    ~ExecutorImpl() = default;
+    ExecutorImpl(const ExecutorImpl &) = delete;
+    ExecutorImpl &operator=(const ExecutorImpl &) = delete;
+    ExecutorImpl(ExecutorImpl &&) = delete;
+    ExecutorImpl &operator=(ExecutorImpl &&) = delete;
 
     std::shared_ptr<Kernel> CreateKernel(const std::string &program_name,
         const std::string &kernel_name,
@@ -201,14 +201,14 @@ private:
     std::unique_ptr<BufferManager> buffer_manager_;
 };
 
-TinyOCL::TinyOCLImpl::TinyOCLImpl()
+Executor::ExecutorImpl::ExecutorImpl()
 {
     if (!Init()) {
-        std::cout << "Failed to initialize TinyOCL" << std::endl;
+        std::cout << "Failed to initialize Executor" << std::endl;
     }
 }
 
-bool TinyOCL::TinyOCLImpl::Init()
+bool Executor::ExecutorImpl::Init()
 {
     cl_uint num_platforms;
     cl_int ret;
@@ -256,7 +256,7 @@ bool TinyOCL::TinyOCLImpl::Init()
     return false;
 }
 
-std::shared_ptr<Kernel> TinyOCL::TinyOCLImpl::CreateKernel(
+std::shared_ptr<Kernel> Executor::ExecutorImpl::CreateKernel(
     const std::string &program_name, const std::string &kernel_name, const std::set<std::string> &build_options) const
 {
     if (!program_manager_) {
@@ -277,7 +277,7 @@ std::shared_ptr<Kernel> TinyOCL::TinyOCLImpl::CreateKernel(
     return std::make_shared<Kernel>(kernel_impl.release());
 }
 
-std::shared_ptr<Buffer> TinyOCL::TinyOCLImpl::CreateBuffer(size_t size) const
+std::shared_ptr<Buffer> Executor::ExecutorImpl::CreateBuffer(size_t size) const
 {
     if (!buffer_manager_) {
         return nullptr;
@@ -290,15 +290,15 @@ std::shared_ptr<Buffer> TinyOCL::TinyOCLImpl::CreateBuffer(size_t size) const
     return std::make_shared<Buffer>(buffer_impl.release());
 }
 
-TinyOCL &TinyOCL::GetInstance()
+Executor &Executor::GetInstance()
 {
-    static TinyOCL instance;
+    static Executor instance;
     return instance;
 }
 
-TinyOCL::TinyOCL() : impl_(std::make_unique<TinyOCLImpl>()) {}
+Executor::Executor() : impl_(std::make_unique<ExecutorImpl>()) {}
 
-std::shared_ptr<Kernel> TinyOCL::CreateKernel(
+std::shared_ptr<Kernel> Executor::CreateKernel(
     const std::string &program_name, const std::string &kernel_name, const std::set<std::string> &build_options) const
 {
     if (!impl_) {
@@ -307,7 +307,7 @@ std::shared_ptr<Kernel> TinyOCL::CreateKernel(
     return impl_->CreateKernel(program_name, kernel_name, build_options);
 }
 
-std::shared_ptr<Buffer> TinyOCL::CreateBuffer(size_t size) const
+std::shared_ptr<Buffer> Executor::CreateBuffer(size_t size) const
 {
     if (!impl_) {
         return nullptr;
@@ -315,4 +315,4 @@ std::shared_ptr<Buffer> TinyOCL::CreateBuffer(size_t size) const
     return impl_->CreateBuffer(size);
 }
 
-}  // namespace tinyocl
+}  // namespace TinyOCL

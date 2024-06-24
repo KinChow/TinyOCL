@@ -7,10 +7,13 @@ set(TINYOCL_OUTPUT_DIR ${EXECUTABLE_OUTPUT_PATH})
 
 find_package(OpenCL QUIET)
 
-include_directories(${TINYOCL_OUTPUT_DIR}/include)
+include_directories(
+    ${gtest_SOURCE_DIR}/include
+    ${TINYOCL_OUTPUT_DIR}/include
+)
 link_directories(${TINYOCL_OUTPUT_DIR})
-add_executable(example ${CMAKE_CURRENT_SOURCE_DIR}/examples.cpp)
-target_link_libraries(example ${PROJECT_NAME})
+add_executable(tests tests.cpp)
+target_link_libraries(tests gtest gtest_main ${PROJECT_NAME})
 if (OpenCL_FOUND)
     target_link_libraries(example OpenCL::OpenCL)
 endif()

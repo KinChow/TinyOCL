@@ -17,10 +17,10 @@ else()
 endif()
 
 string(TIMESTAMP COMPILE_TIME %y%m%d_%H%M%S)
-set(VERSION_MAJOR 1)
+set(VERSION_MAJOR 2)
 set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
-set(VERSION_TWEAK 1)
+set(VERSION_TWEAK 0)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -67,9 +67,16 @@ if (BUILD_LIBRARY)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${OPENCL_HEADER_DIR}/CL ${LIBRARY_OUTPUT_PATH}/include/CL
     )
+
     option(ENABLE_EXAMPLE "Enable examples of TinyOCL." OFF)
     if (ENABLE_EXAMPLE)
         add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+    endif()
+
+    option(ENABLE_TEST "Enable test of TinyOCL." OFF)
+    if (ENABLE_TEST)
+        add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest)
+        add_subdirectory(${PROJECT_SOURCE_DIR}/test)
     endif()
 else()
     add_library(${PROJECT_NAME} INTERFACE)

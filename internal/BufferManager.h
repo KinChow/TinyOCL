@@ -12,7 +12,7 @@
 #include <unordered_set>
 #include <CL/cl.h>
 
-namespace tinyocl {
+namespace TinyOCL {
 class BufferManager final {
 public:
     explicit BufferManager(cl_context context, cl_command_queue queue);
@@ -34,6 +34,6 @@ private:
     std::mutex mutex_;
 };
 
-}  // namespace tinyocl
+}  // namespace TinyOCL
 
 #endif  //__TINYOCL_BUFFERMANAGER_H__

@@ -11,7 +11,7 @@
 #include "utils.h"
 #include "ProgramManager.h"
 
-namespace tinyocl {
+namespace TinyOCL {
 
 ProgramManager::ProgramManager(cl_device_id device, cl_context context) : device_(device), context_(context) {}
 
@@ -139,4 +139,4 @@ cl_kernel ProgramManager::GetKernel(const std::string &program_name, const std::
     return program_iter->second.kernels.at(kernel_name).get();
 }
 
-}  // namespace tinyocl
+}  // namespace TinyOCL
