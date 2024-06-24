@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-13 00:00:00 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-24 22:42:42
+ * @Last Modified time: 2024-06-24 23:38:54
  */
 
 #ifndef __TINYOCL_TINYOCL_H__
@@ -270,7 +270,7 @@ private:
 };
 
 /**
- * @brief Executor is a class that represents the executor to manage Kernel and Buffer.
+ * @brief Executor is a class that manages the Kernel objects and Buffer objects.
  * 
  */
 class Executor final {

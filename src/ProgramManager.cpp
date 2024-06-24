@@ -2,7 +2,7 @@
  * @Author: Zhou Zijian 
  * @Date: 2024-06-16 14:16:47 
  * @Last Modified by: Zhou Zijian
- * @Last Modified time: 2024-06-16 17:16:47
+ * @Last Modified time: 2024-06-24 23:57:37
  */
 
 #include <fstream>
@@ -24,7 +24,7 @@ bool ProgramManager::BuildProgram(const std::string &program_name, const std::se
     }
     std::string build_options_str = "";
     for (const std::string &option : build_options) {
-        build_options_str += option + " ";
+        build_options_str += build_options_str.empty() ? option : " " + option;
     }
     std::regex source_regex(R"(.*\.cl)");
     std::regex binary_regex(R"(.*\.bin)");
@@ -48,9 +48,16 @@ bool ProgramManager::BuildProgramWithSource(const std::string &program_name, con
     program_file.seekg(0, program_file.end);
     const size_t program_size = program_file.tellg();
     program_file.seekg(0, program_file.beg);
+    if (program_size == 0) {
+        std::cout << "Empty program file: " << program_name << std::endl;
+        return false;
+    }
     std::vector<char> program_source(program_size + 1);
     program_source[program_size] = '\0';
-    program_file.read(program_source.data(), program_size);
+    if (!program_file.read(program_source.data(), program_size)) {
+        std::cout << "Failed to read program file: " << program_name << std::endl;
+        return false;
+    }
     program_file.close();
 
     cl_int ret;
@@ -82,8 +89,15 @@ bool ProgramManager::BuildProgramWithBinary(const std::string &program_name, con
     program_file.seekg(0, program_file.end);
     const size_t program_size = program_file.tellg();
     program_file.seekg(0, program_file.beg);
+    if (program_size == 0) {
+        std::cout << "Empty program file: " << program_name << std::endl;
+        return false;
+    }
     std::vector<uint8_t> program_binary(program_size);
-    program_file.read(reinterpret_cast<char *>(program_binary.data()), program_size);
+    if (!program_file.read(reinterpret_cast<char *>(program_binary.data()), program_size)) {
+        std::cout << "Failed to read program file: " << program_name << std::endl;
+        return false;
+    }
     program_file.close();
 
     cl_int ret;
@@ -111,6 +125,10 @@ bool ProgramManager::PrintBuildLog(cl_program program)
     size_t build_log_size;
     cl_int ret = clGetProgramBuildInfo(program, device_, CL_PROGRAM_BUILD_LOG, 0, nullptr, &build_log_size);
     CHECK_OPENCL_ERROR_RETURN_FALSE(ret, "Failed to get program build log size");
+    if (build_log_size == 0) {
+        std::cout << "Build log is empty" << std::endl;
+        return false;
+    }
     std::vector<char> build_log(build_log_size + 1);
     build_log[build_log_size] = '\0';
     ret = clGetProgramBuildInfo(program, device_, CL_PROGRAM_BUILD_LOG, build_log_size, build_log.data(), nullptr);
